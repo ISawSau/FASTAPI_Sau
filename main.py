@@ -24,10 +24,12 @@ async def updateUser(id: int):
     #
     return{"users": "usuari actualizat"}
 
+"""
 @app.patch("api/users/{id}", response_model = dict)
 async def partialUserUpdate(id : int):
     #
     return{"users": "usuari parcialment actualitzat"}
+"""
 
 @app.delete("api/users/{id}", response_model = dict)
 async def deleteUser(id: int):
