@@ -29,12 +29,14 @@ async def updateUser(id: int):
             user["email"] = "emailNou@iticbcn.cat"
     return{"users": users}
 
+
 """
 @app.patch("api/users/{id}", response_model = dict)
 async def partialUserUpdate(id : int):
     #
     return{"users": "usuari parcialment actualitzat"}
 """
+
 
 @app.delete("/api/users/{id}", response_model = dict)
 async def deleteUser(id: int):
