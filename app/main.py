@@ -12,7 +12,7 @@ async def createUser():
 
 @app.get("/api/users/{id}", response_model = dict)
 async def readUserById(id: int):
-    for user in users:
+    for user in users:  
         if user["id"] == id:
             return{"user": user}
     return{"user": None}
