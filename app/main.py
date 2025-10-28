@@ -1,14 +1,17 @@
-from fastapi import FastAPI
-from sqlmodel import SQLModel, create_engine, Session
+from fastapi import FastAPI, Depends
+from sqlmodel import SQLModel, create_engine, Session, select
 from dotenv import load_dotenv
 import os
+
+from app.models.Product import Product,ProductRequest,ProductResponse
 
 #a
 load_dotenv()
 #b
 DATABASE_URL = os.getenv("DATABASE_URL")
+print(DATABASE_URL)
 engine = create_engine(DATABASE_URL)
-#c
+# #c
 SQLModel.metadata.create_all(engine)
 
 def get_db():
@@ -20,18 +23,18 @@ def get_db():
 
 app = FastAPI()
 
-@app.post("/user", response_model=dict, tags=["CREATE"])
-def addUser(user: UserRequest,db:Session = Depebds(get_db)):
-    insert_user = User.model_validate(user)
-    db.add(insert_user)
+@app.post("/product", response_model=dict, tags=["CREATE"])
+def addProduct(product: ProductRequest,db:Session = Depends(get_db)):
+    insert_product = Product.model_validate(product)
+    db.add(insert_product)
     db.commit()
     return {"msg":"Afegit usuari correctament"}
 
-@app.get("user/{id}", response_model=UserResponse, tags=["READ by ID"])
-def getUser(id: int, db:Session = Depends(get_db)):
-    stmt = select(User).where(User.id == id)
-    result = db.exec(stmt.first())
-    return UserResponse.model_validate(result)
+@app.get("/product/{id}", response_model=ProductResponse, tags=["READ by ID"])
+def getProduct(id: int, db:Session = Depends(get_db)):
+    stmt = select(Product).where(Product.id == id)
+    result = db.exec(stmt).first()
+    return ProductResponse.model_validate(result)
 
 """@app.post("/api/users", response_model = dict)
 async def createUser():
