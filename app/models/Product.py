@@ -9,7 +9,8 @@ class ProductRequest(SQLModel):
     name: str
     category: str
     price: int
-    company: str
+    company: str # sensible
+    pattern: int # sensible
 
 class ProductResponse(SQLModel):
     id: int
