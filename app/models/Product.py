@@ -5,7 +5,11 @@ class Product(SQLModel, table=True):
     name: str
 
 class ProductRequest(SQLModel):
+    id: int
     name: str
+    category: str
+    price: int
+    company: str
 
 class ProductResponse(SQLModel):
     id: int

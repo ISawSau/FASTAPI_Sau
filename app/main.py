@@ -3,17 +3,15 @@ from sqlmodel import SQLModel, create_engine, Session, select
 from dotenv import load_dotenv
 import os
 
-from app.models.Product import Product,ProductRequest,ProductResponse,ProductPartialResponse,ProductUpdateName,ProductUpdateTwoFields
+from app.models.Product import Product, ProductRequest, ProductResponse, ProductPartialResponse, ProductUpdateName, ProductUpdateTwoFields
 
-#a
+# carregar variables d'entorn
 load_dotenv()
-#b
 DATABASE_URL = os.getenv("DATABASE_URL")
-print(DATABASE_URL)
 engine = create_engine(DATABASE_URL)
-# #c
-SQLModel.metadata.create_all(engine)
+SQLModel.metadata.create_all(engine)  # crear taules
 
+# connexió a la BD
 def get_db():
     db = Session(engine)
     try:
@@ -28,8 +26,8 @@ def addProduct(product: ProductRequest, db: Session = Depends(get_db)):
     insert_product = Product.model_validate(product)
     db.add(insert_product)
     db.commit()
+    db.refresh(insert_product)
     return {"msg": "Afegit producte correctament"}
-
 
 @app.get("/product/{id}", response_model=ProductResponse, tags=["READ by ID"])
 def getProduct(id: int, db: Session = Depends(get_db)):
@@ -37,20 +35,17 @@ def getProduct(id: int, db: Session = Depends(get_db)):
     result = db.exec(stmt).first()
     return ProductResponse.model_validate(result)
 
-
 @app.get("/products", response_model=list[ProductResponse], tags=["READ ALL"])
 def getAllProducts(db: Session = Depends(get_db)):
     stmt = select(Product)
     results = db.exec(stmt).all()
     return [ProductResponse(id=product.id, name=product.name) for product in results]
 
-
 @app.get("/products/name/{name}", response_model=list[ProductResponse], tags=["READ FILTERED"])
 def getProductsByName(name: str, db: Session = Depends(get_db)):
     stmt = select(Product).where(Product.name == name)
     results = db.exec(stmt).all()
     return [ProductResponse(id=product.id, name=product.name) for product in results]
-
 
 @app.delete("/product/delete/{id}", response_model=dict, tags=["DELETE"])
 def deleteProduct(id: int, db: Session = Depends(get_db)):
@@ -60,13 +55,11 @@ def deleteProduct(id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"msg": f"Producte amb ID {id} eliminat correctament"}
 
-
 @app.get("/product/partial/{id}", response_model=ProductPartialResponse, tags=["READ PARCIAL"])
 def getProductPartial(id: int, db: Session = Depends(get_db)):
     stmt = select(Product).where(Product.id == id)
     result = db.exec(stmt).first()
     return ProductPartialResponse(id=result.id, name=result.name)
-
 
 @app.put("/product/{id}", response_model=dict, tags=["UPDATE TOTAL"])
 def updateProductTotal(id: int, product: ProductRequest, db: Session = Depends(get_db)):
@@ -78,7 +71,6 @@ def updateProductTotal(id: int, product: ProductRequest, db: Session = Depends(g
     db.refresh(db_product)
     return {"msg": f"Producte amb ID {id} actualitzat completament"}
 
-
 @app.patch("/product/{id}/name", response_model=dict, tags=["UPDATE PARCIAL 1 CAMP"])
 def updateProductName(id: int, product_update: ProductUpdateName, db: Session = Depends(get_db)):
     stmt = select(Product).where(Product.id == id)
@@ -88,7 +80,6 @@ def updateProductName(id: int, product_update: ProductUpdateName, db: Session = 
     db.commit()
     db.refresh(db_product)
     return {"msg": f"Nom del producte amb ID {id} actualitzat"}
-
 
 @app.patch("/product/{id}/two-fields", response_model=dict, tags=["UPDATE PARCIAL 2 CAMPS"])
 def updateProductTwoFields(id: int, product_update: ProductUpdateTwoFields, db: Session = Depends(get_db)):
